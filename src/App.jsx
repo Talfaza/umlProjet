@@ -2,6 +2,8 @@ import * as go from "gojs";
 import { ReactDiagram } from "gojs-react";
 import "./App.css";
 
+let diagramInstance; // Global variable to store the diagram instance
+
 function initDiagram() {
   const diagram = new go.Diagram({
     "undoManager.isEnabled": true,
@@ -172,82 +174,55 @@ function initDiagram() {
       new go.Shape({ toArrow: "OpenTriangle" }),
     ),
   );
-  //propertiess
-  /**
-   * name:, type:, visibility:, default=
-   * */
-  // pramaters
-  // name:
-  // paramters; [{name: , type: }]
-  // visibility:
-  const nodeDataArray = [
-    {
-      key: 1,
-      name: "BankAccount",
-      properties: [
-        { name: "owner", type: "String", visibility: "public" },
-        {
-          name: "balance",
-          type: "Currency",
-          visibility: "public",
-          default: "0",
-        },
-      ],
-      methods: [
-        {
-          name: "deposit",
-          parameters: [{ name: "amount", type: "Currency" }],
-          visibility: "public",
-        },
-        {
-          name: "withdraw",
-        },
-      ],
-    },
-    {
-      key: 11,
-      name: "Person",
-      properties: [
-        { name: "name", type: "String", visibility: "public" },
-        { name: "birth", type: "Date", visibility: "protected" },
-      ],
-      methods: [{ name: "getCurrentAge", type: "int", visibility: "public" }],
-    },
-    {
-      key: 60,
-      name: "Test",
-      properties: [
-        { name: "name", type: "String", visibility: "public" },
-        { name: "Date De Naissance", type: "Date", visibility: "protected" },
-      ],
-    },
 
-    {
-      key: 10,
-      name: "Person",
-      methods: [{ name: "getCurrentAge", type: "int", visibility: "public" }],
-    },
-  ];
-
-  const linkDataArray = [
-    { from: 1, to: 11, relationship: "Aggregation" },
-    { from: 1, to: 60, relationship: "Aggregation" },
-  ];
-
+  // Initial data
   diagram.model = new go.GraphLinksModel({
     copiesArrays: true,
     copiesArrayObjects: true,
     linkCategoryProperty: "relationship",
-    nodeDataArray,
-    linkDataArray,
+    nodeDataArray: [],
+    linkDataArray: [
+      { from: 1, to: 11, relationship: "Aggregation" },
+      { from: 1, to: 60, relationship: "Aggregation" },
+    ],
   });
 
+  // Save the diagram instance
+  diagramInstance = diagram;
+
   return diagram;
+}
+
+function addPersonNode() {
+  if (!diagramInstance) {
+    console.error("Diagram instance is not initialized yet.");
+    return;
+  }
+
+  const newPerson = {
+    key: diagramInstance.model.nodeDataArray.length + 1,
+    name: "Person",
+    properties: [
+      { name: "name", type: "String", visibility: "public" },
+      { name: "birth", type: "Date", visibility: "protected" },
+    ],
+    methods: [{ name: "getCurrentAge", type: "int", visibility: "public" }],
+  };
+
+  // Add the new node to the diagram model
+  diagramInstance.model.addNodeData(newPerson);
+  console.log("New node added:", newPerson);
 }
 
 export default function App() {
   return (
     <div>
+      <button
+        onClick={addPersonNode}
+        style={{ margin: "10px", padding: "10px" }}
+      >
+        Add Test
+      </button>
       <ReactDiagram
         initDiagram={initDiagram}
         divClassName="diagram-component"
